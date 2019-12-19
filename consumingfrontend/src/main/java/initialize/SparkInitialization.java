@@ -9,7 +9,6 @@ public class SparkInitialization {
         get("/", RouteControllers::indexController);
 
         notFound(RouteControllers::_404Handler);
-
     }
 
 }

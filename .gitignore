@@ -3,3 +3,5 @@ pom.xml
 target
 .idea
 *.iml
+pom-for-docker.xml
+Dockerfile

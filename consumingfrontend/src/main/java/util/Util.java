@@ -12,6 +12,8 @@ public class Util {
     private static ArrayList<String> responseBuffer = new ArrayList();
     private static ArrayList<ReceivedEventInterface> responses = new ArrayList();
 
+    public Util () {}
+
     public static void pushResponseToBuffers(ReceivedEventInterface response) {
         responseBuffer.add(response.requestId);
         responses.add(response);

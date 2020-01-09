@@ -1,6 +1,7 @@
 package controllers;
 
 import com.google.gson.Gson;
+import dockerapi.ContainerInfo;
 import interfaces.*;
 import spark.Request;
 import spark.Response;
@@ -19,7 +20,8 @@ public class RouteControllers {
 
    public static Object requestRouteController(Request req, Response res) {
        try {
-         Object result = Task.taskController(req.body());
+         ContainerInfo containerInfo = new ContainerInfo();
+         Object result = Task.taskController(req.body(), containerInfo);
          res.type("application/json");
 
          JSONResponseWithResult sentResult = new JSONResponseWithResult("OK", result);

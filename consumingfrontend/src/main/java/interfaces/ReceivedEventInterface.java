@@ -1,16 +1,5 @@
 package interfaces;
 
-enum TASK_TYPE {
-    NUMBER,
-    STRING
-}
-
-enum SUB_TASK_TYPE {
-    ADD,
-    MULTIPLY,
-    SUBTRACT,
-    DIVIDE
-}
 
 public class ReceivedEventInterface implements Cloneable {
     public String requestId;

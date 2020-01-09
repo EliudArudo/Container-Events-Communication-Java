@@ -16,18 +16,18 @@ import static util.Util.getSelectedEventContainerIdAndService;
 // https://github.com/spotify/docker-client/blob/master/docs/user_manual.md
 
 public class ContainerInfo {
-    private static String id;
-    private static String service;
+    private String id;
+    private String service;
 
     public ContainerInfo() {};
 
-    public static ContainerInfoInterface fetchContainerInfo() {
+    public ContainerInfoInterface fetchContainerInfo() {
         initialise();
         ContainerInfoInterface containerInfo = new ContainerInfoInterface(id, service);
         return containerInfo;
     }
 
-    public static ContainerInfoInterface fetchOfflineContainerInfo() {
+    public ContainerInfoInterface fetchOfflineContainerInfo() {
         ContainerInfoInterface containerInfo = new ContainerInfoInterface(id, service);
         return containerInfo;
     }
@@ -38,7 +38,7 @@ public class ContainerInfo {
         return containerInfo;
     }
 
-    public static ArrayList<ContainerInfoInterface> getFreshContainers() {
+    public ArrayList<ContainerInfoInterface> getFreshContainers() {
             ArrayList<ContainerInfoInterface> parsedContainers = new ArrayList();
 
         try {
@@ -57,7 +57,7 @@ public class ContainerInfo {
 
     }
 
-    public static void initialise() {
+    public void initialise() {
         List containerArray = getDockerContainerList();
         setContainerInfoUsingContainerArray(containerArray);
     }
@@ -79,7 +79,7 @@ public class ContainerInfo {
          }
     }
 
-    public static void setContainerInfoUsingContainerArray(List<Container> containerArray) {
+    public void setContainerInfoUsingContainerArray(List<Container> containerArray) {
         try {
           String shortContainerId = InetAddress.getLocalHost().getHostName();
 
@@ -104,7 +104,7 @@ public class ContainerInfo {
         }
     }
 
-    public static ArrayList<ContainerInfoInterface> getParsedContainers(List<Container> containerArray) throws Exception  {
+    public ArrayList<ContainerInfoInterface> getParsedContainers(List<Container> containerArray) throws Exception  {
         ArrayList<ContainerInfoInterface> parsedContainers = new ArrayList();
 
         if(containerArray.size() == 0)

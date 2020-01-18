@@ -103,14 +103,12 @@ public class ContainerInfo {
 
           Container fetchedContainer = containerArray
                   .stream()
-                  .filter(container -> container.id().equals(shortContainerId))
+                  .filter(container -> container.id().contains(shortContainerId))
                   .findAny()
                   .orElse(null);
 
           id = fetchedContainer.id();
           service = fetchedContainer.labels().get("com.docker.swarm.service.name");
-
-          return;
 
         } catch (Exception e) {
             Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "setContainerInfoUsingContainerArray", e.getMessage());

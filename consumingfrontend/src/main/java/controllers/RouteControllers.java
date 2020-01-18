@@ -15,6 +15,14 @@ import tasks.Task;
 public class RouteControllers {
    private static String packageName = "controllers::RouteControllers";
 
+    private static Object getJSONResponse(String responseMessage) {
+        JSONResponse statusMessage = new JSONResponse(responseMessage);
+        return new Gson().toJson(statusMessage);
+    }
+
+    private static Object getJSONResponseWithResult(JSONResponseWithResult result) {
+        return new Gson().toJson(result);
+    }
 
    public static Object indexController(Request req, Response res) {
        res.type("application/json");
@@ -47,12 +55,4 @@ public class RouteControllers {
        return getJSONResponse("Non-existent route and method");
    }
 
-   private static Object getJSONResponse(String responseMessage) {
-       JSONResponse statusMessage = new JSONResponse(responseMessage);
-       return new Gson().toJson(statusMessage);
-   }
-
-   private static Object getJSONResponseWithResult(JSONResponseWithResult result) {
-       return new Gson().toJson(result);
-   }
 }

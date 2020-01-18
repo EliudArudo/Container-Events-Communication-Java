@@ -32,7 +32,7 @@ public class ContainerInfo {
         return containerInfo;
     }
 
-    public static ContainerInfoInterface fetchEventContainer() {
+    public ContainerInfoInterface fetchEventContainer() {
         ContainerInfoInterface containerInfo = getSelectedEventContainerIdAndService();
 
         return containerInfo;
@@ -62,7 +62,7 @@ public class ContainerInfo {
         setContainerInfoUsingContainerArray(containerArray);
     }
 
-    public static List<Container> getDockerContainerList() {
+    public List<Container> getDockerContainerList() {
              List<Container> containerArray;
 
          try {

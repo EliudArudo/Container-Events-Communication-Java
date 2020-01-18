@@ -1,12 +1,21 @@
 package initialize;
 
 import dockerapi.ContainerInfo;
-import interfaces.ContainerInfoInterface;
 
 public class DockerAPIInit {
-    public static void initialFetchMyContainerInfo(ContainerInfo containerInfo) {
-        ContainerInfoInterface myContainerInfo = containerInfo.fetchContainerInfo();
 
+    private static ContainerInfo containerInfo;
+
+    public DockerAPIInit() {}
+
+    public static void initialFetchMyContainerInfo() {
+        containerInfo = new ContainerInfo();
+
+        containerInfo.fetchContainerInfo();
         // Logging stuff here
+    }
+
+    public static ContainerInfo getContainerInfoInstance() {
+        return containerInfo;
     }
 }

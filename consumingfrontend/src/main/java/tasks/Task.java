@@ -2,7 +2,10 @@ package tasks;
 
 import com.google.gson.Gson;
 import dockerapi.ContainerInfo;
+import env.EnvSetup;
+import initialize.RedisInit;
 import interfaces.*;
+import redis.clients.jedis.Jedis;
 import util.Util;
 
 import java.util.HashMap;
@@ -102,9 +105,10 @@ public class Task {
            return null;
     }
 
-    public static void sendTaskToEventsService(TaskInterface task, Object functionRedisPublisher) {
+    public static void sendTaskToEventsService(TaskInterface task, Jedis functionRedisPublisher) {
         String stringifiedTask = new Gson().toJson(task);
-//        functionRedisPublisher.publish(EventService, stringifiedTask);
+        String EventService = EnvSetup.EVENT_SERVICE_EVENT;
+        functionRedisPublisher.publish(EventService, stringifiedTask);
     }
 
     private static Object waitForResult(String requestId) {
@@ -132,7 +136,9 @@ public class Task {
             SUB_TASK_TYPE determinedSubtask = determineSubTask(determinedTask, requestBody);
             TaskInterface task = taskDeterminer(determinedTask, determinedSubtask, requestBody, containerInfo);
 
-            Object redisPublisher = null;
+
+            Jedis redisPublisher = RedisInit.getRedisPublisher();
+
             sendTaskToEventsService(task, redisPublisher);
 
             Object response = waitForResult(task.requestId);

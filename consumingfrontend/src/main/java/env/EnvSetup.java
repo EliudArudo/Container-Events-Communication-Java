@@ -8,13 +8,13 @@ public class EnvSetup {
 
    private static String PORT = "PORT";
 
-    private static String EVENT_SERVICE_EVENT = "EVENT_SERVICE_EVENT";
+    public static String EVENT_SERVICE_EVENT = "EVENT_SERVICE_EVENT";
 
-    private static String CONSUMING_SERVICE_EVENT = "CONSUMING_SERVICE_EVENT";
+    public static String CONSUMING_SERVICE_EVENT = "CONSUMING_SERVICE_EVENT";
 
 
     public static RedisEnvInterface RedisKeys = new RedisEnvInterface("localhost", "6379");
-    public static String SparkPort =  "4000";
+    public static int SparkPort =  4000;
     public static String EventServiceEvent = "Event_Service";
     public static String ConsumingServiceEvent = "Consuming_Service";
 
@@ -32,7 +32,7 @@ public class EnvSetup {
             RedisKeys.REDIS_PORT = redisPortFromEnv;
         }
 
-        SparkPort = sparkPortFromEnv.length() > 0? sparkPortFromEnv : SparkPort;
+        SparkPort = sparkPortFromEnv.length() > 0? Integer.parseInt(sparkPortFromEnv) : SparkPort;
         EventServiceEvent = eventServiceEventFromEnv.length() > 0? eventServiceEventFromEnv : EventServiceEvent;
         ConsumingServiceEvent = consumingServiceEventFromEnv.length() > 0? consumingServiceEventFromEnv : ConsumingServiceEvent;
     }

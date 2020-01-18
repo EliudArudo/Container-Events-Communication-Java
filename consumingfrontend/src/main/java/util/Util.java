@@ -60,7 +60,7 @@ public class Util {
     }
 
     public static ContainerInfoInterface getSelectedEventContainerIdAndService() {
-        ArrayList<ContainerInfoInterface> containers = ContainerInfo.getFreshContainers();
+        ArrayList<ContainerInfoInterface> containers = new ContainerInfo().getFreshContainers();
 
         ArrayList<ContainerInfoInterface> selectedContainers = new ArrayList();
 

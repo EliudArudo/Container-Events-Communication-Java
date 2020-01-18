@@ -3,11 +3,14 @@ package util;
 import dockerapi.ContainerInfo;
 import interfaces.ContainerInfoInterface;
 import interfaces.ReceivedEventInterface;
+import interfaces.STATUS_TYPE;
+import log.Logging;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class Util {
+    private static String packageName = "util::Util";
 
     private static ArrayList<String> responseBuffer = new ArrayList();
     private static ArrayList<ReceivedEventInterface> responses = new ArrayList();
@@ -31,8 +34,9 @@ public class Util {
 
     public static ReceivedEventInterface getResponseFromBuffer(String requestId) {
 
-        ReceivedEventInterface response = new ReceivedEventInterface();
         try {
+            ReceivedEventInterface response = new ReceivedEventInterface();
+
             String receivedEventId = responseBuffer
                     .stream()
                     .filter(event -> event.equals(requestId))
@@ -40,8 +44,6 @@ public class Util {
                     .orElse(null);
 
             boolean responseArrived = receivedEventId != null;
-
-
             if(responseArrived) {
                 ReceivedEventInterface _response = responses.stream()
                         .filter(foundResponse -> foundResponse.requestId == requestId)
@@ -52,36 +54,42 @@ public class Util {
                 clearResponseFromBuffers(response);
             }
 
-        } catch(CloneNotSupportedException e) {
-            System.out.printf("Cannot clone _response object %s", e.getMessage());
-        } finally {
-           return response;
+            return response;
+        } catch(Exception e) {
+            Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "getResponseFromBuffer", e.getMessage());
+            return null;
         }
     }
 
     public static ContainerInfoInterface getSelectedEventContainerIdAndService() {
-        ArrayList<ContainerInfoInterface> containers = new ContainerInfo().getFreshContainers();
 
-        ArrayList<ContainerInfoInterface> selectedContainers = new ArrayList();
+        try {
+            ArrayList<ContainerInfoInterface> containers = new ContainerInfo().getFreshContainers();
 
-        final String selectedService = "event"; // 'eventsService'
-        for(ContainerInfoInterface container: containers) {
-            final String lowerCaseContainerService =
-                    container.service.toLowerCase();
-            final boolean containerBelongsToSelectedService =
-                    lowerCaseContainerService.contains(selectedService);
+            ArrayList<ContainerInfoInterface> selectedContainers = new ArrayList();
 
-            if(containerBelongsToSelectedService)
-                selectedContainers.add(container);
+            final String selectedService = "event"; // 'eventsService'
+            for(ContainerInfoInterface container: containers) {
+                final String lowerCaseContainerService =
+                        container.service.toLowerCase();
+                final boolean containerBelongsToSelectedService =
+                        lowerCaseContainerService.contains(selectedService);
+
+                if(containerBelongsToSelectedService)
+                    selectedContainers.add(container);
+            }
+
+            int randomIndex = (int) Math.floor(Math.random() * selectedContainers.size());
+
+            ContainerInfoInterface selectedContainer = selectedContainers.get(randomIndex);
+
+            while(selectedContainer.id == "")
+                getSelectedEventContainerIdAndService();
+
+            return selectedContainer;
+        } catch(Exception e) {
+            Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "getSelectedEventContainerIdAndService", e.getMessage());
+            return null;
         }
-
-        int randomIndex = (int) Math.floor(Math.random() * selectedContainers.size());
-
-        ContainerInfoInterface selectedContainer = selectedContainers.get(randomIndex);
-
-        while(selectedContainer.id == "")
-            getSelectedEventContainerIdAndService();
-
-        return selectedContainer;
     }
 }

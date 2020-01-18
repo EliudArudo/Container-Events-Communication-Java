@@ -2,12 +2,12 @@ package dockerapi;
 
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.messages.Container;
 import interfaces.ContainerInfoInterface;
+import interfaces.STATUS_TYPE;
+import log.Logging;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,15 +16,23 @@ import static util.Util.getSelectedEventContainerIdAndService;
 // https://github.com/spotify/docker-client/blob/master/docs/user_manual.md
 
 public class ContainerInfo {
+    private static String packageName = "dockerapi::ContainerInfo";
+
     private String id;
     private String service;
 
     public ContainerInfo() {};
 
     public ContainerInfoInterface fetchContainerInfo() {
-        initialise();
-        ContainerInfoInterface containerInfo = new ContainerInfoInterface(id, service);
-        return containerInfo;
+        try {
+            initialise();
+
+            ContainerInfoInterface containerInfo = new ContainerInfoInterface(id, service);
+            return containerInfo;
+        } catch(Exception e) {
+            Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "fetchContainerInfo", e.getMessage());
+            return null;
+        }
     }
 
     public ContainerInfoInterface fetchOfflineContainerInfo() {
@@ -33,9 +41,13 @@ public class ContainerInfo {
     }
 
     public ContainerInfoInterface fetchEventContainer() {
-        ContainerInfoInterface containerInfo = getSelectedEventContainerIdAndService();
-
-        return containerInfo;
+        try {
+            ContainerInfoInterface containerInfo = getSelectedEventContainerIdAndService();
+            return containerInfo;
+        } catch(Exception e) {
+            Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "fetchEventContainer", e.getMessage());
+            return null;
+        }
     }
 
     public ArrayList<ContainerInfoInterface> getFreshContainers() {
@@ -50,7 +62,7 @@ public class ContainerInfo {
             parsedContainers = getParsedContainers(containerArray);
 
         } catch(Exception e) {
-            System.out.printf("failed to fetch fresh container arrays %s", e.getMessage());
+            Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "getFreshContainers", e.getMessage());
         } finally {
             return parsedContainers;
         }
@@ -58,8 +70,12 @@ public class ContainerInfo {
     }
 
     public void initialise() {
-        List containerArray = getDockerContainerList();
-        setContainerInfoUsingContainerArray(containerArray);
+        try {
+            List containerArray = getDockerContainerList();
+            setContainerInfoUsingContainerArray(containerArray);
+        } catch(Exception e) {
+            Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "initialise", e.getMessage());
+        }
     }
 
     public List<Container> getDockerContainerList() {
@@ -72,10 +88,9 @@ public class ContainerInfo {
 
              return containerArray;
 
-         } catch(DockerCertificateException e) {
-             System.out.printf("Could not get containers %s", e.getMessage());
-         } finally {
-             return new ArrayList<Container>();
+         } catch(Exception e) {
+             Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "getDockerContainerList", e.getMessage());
+             return new ArrayList<>();
          }
     }
 
@@ -97,28 +112,34 @@ public class ContainerInfo {
 
           return;
 
-        } catch (UnknownHostException e) {
-            System.out.printf("Could not get hostname %s", e.getMessage());
         } catch (Exception e) {
-            System.out.printf("Error: %s", e.getMessage());
+            Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "setContainerInfoUsingContainerArray", e.getMessage());
         }
     }
 
     public ArrayList<ContainerInfoInterface> getParsedContainers(List<Container> containerArray) throws Exception  {
-        ArrayList<ContainerInfoInterface> parsedContainers = new ArrayList();
 
-        if(containerArray.size() == 0)
-            throw new Error("getParsedContainers: No containers brought in");
+        try {
 
-        for(Container container:containerArray) {
-            String id = container.id();
-            String service = container.labels().get("com.docker.swarm.service.name");
+            ArrayList<ContainerInfoInterface> parsedContainers = new ArrayList();
 
-            ContainerInfoInterface parsedContainerInfo = new ContainerInfoInterface(id, service);
+            if(containerArray.size() == 0)
+                throw new Error("getParsedContainers: No containers brought in");
 
-            parsedContainers.add(parsedContainerInfo);
+            for(Container container:containerArray) {
+                String id = container.id();
+                String service = container.labels().get("com.docker.swarm.service.name");
+
+                ContainerInfoInterface parsedContainerInfo = new ContainerInfoInterface(id, service);
+
+                parsedContainers.add(parsedContainerInfo);
+            }
+
+            return parsedContainers;
+
+        } catch(Exception e) {
+            Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "getParsedContainers", e.getMessage());
+            return new ArrayList<>();
         }
-
-        return parsedContainers;
     }
 }

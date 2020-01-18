@@ -13,6 +13,9 @@ import tasks.Task;
 
 
 public class RouteControllers {
+   private static String packageName = "controllers::RouteControllers";
+
+
    public static Object indexController(Request req, Response res) {
        res.type("application/json");
        JSONResponse statusMessage = new JSONResponse("OK");
@@ -30,6 +33,8 @@ public class RouteControllers {
          return getJSONResponseWithResult(sentResult);
 
        } catch(Exception e) {
+         log.Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "requestRouteController", e.getMessage());
+
          res.status(500);
          res.type("application/json");
 

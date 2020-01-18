@@ -5,6 +5,7 @@ import dockerapi.ContainerInfo;
 import env.EnvSetup;
 import initialize.RedisInit;
 import interfaces.*;
+import log.Logging;
 import redis.clients.jedis.Jedis;
 import util.Util;
 
@@ -14,6 +15,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class Task {
+    private static String packageName = "tasks::Task";
 
     private static final int WAITINGTIMEFORRESPONSE = 10;
 
@@ -97,23 +99,25 @@ public class Task {
                );
 
                return exportTask;
-
            } catch(Exception e) {
-              // Will do something about this
+               Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "taskDeterminer", e.getMessage());
+               return null;
            }
-
-           return null;
     }
 
     public static void sendTaskToEventsService(TaskInterface task, Jedis functionRedisPublisher) {
-        String stringifiedTask = new Gson().toJson(task);
-        String EventService = EnvSetup.EVENT_SERVICE_EVENT;
-        functionRedisPublisher.publish(EventService, stringifiedTask);
+        try {
+            String stringifiedTask = new Gson().toJson(task);
+            String EventService = EnvSetup.EVENT_SERVICE_EVENT;
+            functionRedisPublisher.publish(EventService, stringifiedTask);
+
+        } catch(Exception e) {
+            Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "sendTaskToEventsService", e.getMessage());
+        }
     }
 
     private static Object waitForResult(String requestId) {
           try {
-
               ReceivedEventInterface response = Util.getResponseFromBuffer(requestId);
 
               while(response.equals(null) || response.responseBody.length() == 0) {
@@ -124,10 +128,9 @@ public class Task {
               return response.responseBody;
 
           } catch(Exception e) {
-
+            Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "waitForResult", e.getMessage());
+            return null;
           }
-
-          return null;
     }
 
     public static Object taskController(Object requestBody, ContainerInfo containerInfo) {
@@ -136,7 +139,6 @@ public class Task {
             SUB_TASK_TYPE determinedSubtask = determineSubTask(determinedTask, requestBody);
             TaskInterface task = taskDeterminer(determinedTask, determinedSubtask, requestBody, containerInfo);
 
-
             Jedis redisPublisher = RedisInit.getRedisPublisher();
 
             sendTaskToEventsService(task, redisPublisher);
@@ -144,10 +146,9 @@ public class Task {
             Object response = waitForResult(task.requestId);
 
             return response;
-
         } catch(Exception e) {
-
+            Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "taskController", e.getMessage());
+            return null;
         }
-        return null;
     }
 }

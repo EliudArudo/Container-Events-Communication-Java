@@ -9,7 +9,6 @@ import log.Logging;
 import redis.clients.jedis.Jedis;
 import util.Util;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -21,12 +20,14 @@ public class Task {
 
     public Task () {}
 
-    private static TASK_TYPE determineTask(Object requestBody) {
+    private static TASK_TYPE determineTask(String requestBody) {
         TASK_TYPE task;
         boolean isString = false;
         boolean isNumber = false;
 
-        Map<String, Object> mappedRequestBody = (HashMap<String, Object>) requestBody;
+        System.out.println("------> requestBody is: " + requestBody);
+
+        Map<String, Object> mappedRequestBody = new Gson().fromJson(requestBody, Map.class);
         Set<String> mapKeySet = mappedRequestBody.keySet();
 
         for(String key:mapKeySet) {
@@ -41,7 +42,7 @@ public class Task {
         return task;
     }
 
-    private static SUB_TASK_TYPE determineSubTask(TASK_TYPE task, Object requestBody) {
+    private static SUB_TASK_TYPE determineSubTask(TASK_TYPE task, String requestBody) {
         SUB_TASK_TYPE subtask = null;
 
         switch(task) {
@@ -54,7 +55,7 @@ public class Task {
                 boolean isMultiplication = false;
                 boolean isDivision = false;
 
-                Map<String, Object> mappedRequestBody = (HashMap<String, Object>) requestBody;
+                Map<String, Object> mappedRequestBody = new Gson().fromJson(requestBody, Map.class);;
                 Set<String> mapKeySet = mappedRequestBody.keySet();
 
                 for(String key:mapKeySet) {
@@ -108,7 +109,12 @@ public class Task {
     public static void sendTaskToEventsService(TaskInterface task, Jedis functionRedisPublisher) {
         try {
             String stringifiedTask = new Gson().toJson(task);
-            String EventService = EnvSetup.EVENT_SERVICE_EVENT;
+            // Dev
+            System.out.println("------> About to be sent through redis" + stringifiedTask);
+            // Dev
+
+
+            String EventService = EnvSetup.EventServiceEvent;
             functionRedisPublisher.publish(EventService, stringifiedTask);
 
         } catch(Exception e) {
@@ -133,8 +139,9 @@ public class Task {
           }
     }
 
-    public static Object taskController(Object requestBody, ContainerInfo containerInfo) {
+    public static Object taskController(String requestBody, ContainerInfo containerInfo) {
         try {
+
             TASK_TYPE determinedTask  = determineTask(requestBody);
             SUB_TASK_TYPE determinedSubtask = determineSubTask(determinedTask, requestBody);
             TaskInterface task = taskDeterminer(determinedTask, determinedSubtask, requestBody, containerInfo);

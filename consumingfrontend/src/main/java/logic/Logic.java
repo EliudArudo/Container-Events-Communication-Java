@@ -15,6 +15,9 @@ public class Logic {
     public static void eventDeterminer(String sentEvent, ContainerInfo functionContainerInfo) {
 
         try {
+            // Dev
+            System.out.println("------> Returned through redis" + sentEvent);
+            // Dev
             ReceivedEventInterface event = new Gson().fromJson(sentEvent, ReceivedEventInterface.class);
 
             ContainerInfoInterface offlineContainerInfo = functionContainerInfo.fetchOfflineContainerInfo();

@@ -6,3 +6,5 @@ target
 pom-for-docker.xml
 Dockerfile
 *txt
+
+docker-stack-dev.yaml

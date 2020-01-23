@@ -12,9 +12,9 @@ public class EnvSetup {
 
    private static String PORT = "PORT";
 
-    public static String EVENT_SERVICE_EVENT = "EVENT_SERVICE_EVENT";
+    public static String EVENT_SERVICE_EVENT_ENV = "EVENT_SERVICE_EVENT";
 
-    public static String CONSUMING_SERVICE_EVENT = "CONSUMING_SERVICE_EVENT";
+    public static String CONSUMING_SERVICE_EVENT_ENV = "CONSUMING_SERVICE_EVENT";
 
 
     public static RedisEnvInterface RedisKeys = new RedisEnvInterface("localhost", "6379");
@@ -30,8 +30,8 @@ public class EnvSetup {
             String redisHostFromEnv = System.getenv(REDIS_HOST);
             String redisPortFromEnv = System.getenv(REDIS_PORT);
             String sparkPortFromEnv = System.getenv(PORT);
-            String eventServiceEventFromEnv = System.getenv(EVENT_SERVICE_EVENT);
-            String consumingServiceEventFromEnv = System.getenv(CONSUMING_SERVICE_EVENT);
+            String eventServiceEventFromEnv = System.getenv(EVENT_SERVICE_EVENT_ENV);
+            String consumingServiceEventFromEnv = System.getenv(CONSUMING_SERVICE_EVENT_ENV);
 
             if (redisHostFromEnv.length() > 0 && redisPortFromEnv.length() > 0) {
                 RedisKeys.REDIS_HOST = redisHostFromEnv;

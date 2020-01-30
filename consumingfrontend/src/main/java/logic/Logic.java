@@ -15,21 +15,13 @@ public class Logic {
     public static void eventDeterminer(String sentEvent, ContainerInfo functionContainerInfo) {
 
         try {
-            // Dev
-            System.out.println("------> Returned through redis" + sentEvent);
-            // Dev
             ReceivedEventInterface event = new Gson().fromJson(sentEvent, ReceivedEventInterface.class);
 
             ContainerInfoInterface offlineContainerInfo = functionContainerInfo.fetchOfflineContainerInfo();
-            boolean eventIsOurs = event.containerId == offlineContainerInfo.id &&
-                    event.service == offlineContainerInfo.service;
+            boolean eventIsOurs = event.containerId.equals(offlineContainerInfo.id) && event.service.equals(offlineContainerInfo.service);
 
             EventTaskType taskType = event.responseBody.length() > 0? EventTaskType.RESPONSE :
                     EventTaskType.RESPONSE;
-
-            // Dev
-            System.out.println("------> eventIsOurs: " + eventIsOurs);
-            // Dev
 
             if(!eventIsOurs)
                 return;

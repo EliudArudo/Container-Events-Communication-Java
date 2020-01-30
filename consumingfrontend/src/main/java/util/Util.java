@@ -18,9 +18,6 @@ public class Util {
     public Util () {}
 
     public static void pushResponseToBuffers(ReceivedEventInterface response) {
-        // Dev
-        System.out.println("------> '" + response.requestId + "' added to responseBuffer\n");
-        // Dev
         responseBuffer.add(response.requestId);
         responses.add(response);
     }
@@ -49,7 +46,7 @@ public class Util {
             boolean responseArrived = receivedEventId != null;
             if(responseArrived) {
                 ReceivedEventInterface _response = responses.stream()
-                        .filter(foundResponse -> foundResponse.requestId == requestId)
+                        .filter(foundResponse -> foundResponse.requestId.equals(requestId))
                         .findAny()
                         .orElse(null);
 
@@ -86,7 +83,7 @@ public class Util {
 
             ContainerInfoInterface selectedContainer = selectedContainers.get(randomIndex);
 
-            while(selectedContainer.id == "")
+            while(selectedContainer.id.equals(""))
                 getSelectedEventContainerIdAndService();
 
             return selectedContainer;

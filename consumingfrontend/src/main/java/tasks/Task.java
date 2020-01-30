@@ -17,6 +17,7 @@ public class Task {
     private static String packageName = "tasks::Task";
 
     private static final int WAITINGTIMEFORRESPONSE = 10;
+    private static final int EXPIRATIONTIME = WAITINGTIMEFORRESPONSE * 100 * 5;
 
     public Task () {}
 
@@ -25,14 +26,13 @@ public class Task {
         boolean isString = false;
         boolean isNumber = false;
 
-        System.out.println("------> requestBody is: " + requestBody);
-
         Map<String, Object> mappedRequestBody = new Gson().fromJson(requestBody, Map.class);
         Set<String> mapKeySet = mappedRequestBody.keySet();
 
+        // TODO - Build up this service and then test this
         for(String key:mapKeySet) {
-           isString = mappedRequestBody.get(key) instanceof String;
-           isNumber = mappedRequestBody.get(key) instanceof Number;
+            isNumber = key.matches("[+-]?\\d*(\\.\\d+)?");
+            isString =  !isNumber;
         }
 
         task = isString? TASK_TYPE.NUMBER :
@@ -88,10 +88,6 @@ public class Task {
 
                String newRequestBody = requestBody.replaceAll("[\\n\\t ]", "");
 
-               // Dev
-               System.out.println("------> newRequestBody" + newRequestBody);
-               // Dev
-
                TaskInterface exportTask = new TaskInterface(
                        task,
                        subtask,
@@ -114,10 +110,6 @@ public class Task {
         try {
             String stringifiedTask = new Gson().toJson(task);
 
-            // Dev
-            System.out.println("------> about to send stringifiedTask" + stringifiedTask);
-            // Dev
-
             String EventService = EnvSetup.EventServiceEvent;
             functionRedisPublisher.publish(EventService, stringifiedTask);
 
@@ -126,25 +118,25 @@ public class Task {
         }
     }
 
-    // TODO - Problem here - waitForResult not picking response that came in
     private static Object waitForResult(String requestId) {
           try {
               ReceivedEventInterface response = Util.getResponseFromBuffer(requestId);
 
+              int waitingTimeCounter = 0;
+
               while(response.responseBody == null) {
+                  if(waitingTimeCounter >= EXPIRATIONTIME)
+                       throw new Exception("Response took too long");
+
                   Thread.sleep(WAITINGTIMEFORRESPONSE);
                   response = Util.getResponseFromBuffer(requestId);
-              }
 
-              // Dev
-              String stringifiedResponse = new Gson().toJson(response);
-              System.out.println("------> waitForResult : 2. response: " + stringifiedResponse + "\n");
-              // Dev
+                  waitingTimeCounter+= WAITINGTIMEFORRESPONSE;
+              }
 
               return response.responseBody;
 
           } catch(Exception e) {
-              System.out.println(e);
               Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "waitForResult", e.getMessage());
             return null;
           }
@@ -162,11 +154,6 @@ public class Task {
             sendTaskToEventsService(task, redisPublisher);
 
             Object response = waitForResult(task.requestId);
-
-            // Dev
-            String stringifiedResponse = new Gson().toJson(response);
-            System.out.println("------> response returned: " + stringifiedResponse);
-            // Dev
 
             return response;
         } catch(Exception e) {

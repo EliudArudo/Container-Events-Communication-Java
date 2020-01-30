@@ -18,6 +18,9 @@ public class Util {
     public Util () {}
 
     public static void pushResponseToBuffers(ReceivedEventInterface response) {
+        // Dev
+        System.out.println("------> '" + response.requestId + "' added to responseBuffer\n");
+        // Dev
         responseBuffer.add(response.requestId);
         responses.add(response);
     }

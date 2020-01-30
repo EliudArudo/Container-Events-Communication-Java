@@ -75,7 +75,7 @@ public class Task {
         return subtask;
     }
 
-    private static TaskInterface taskDeterminer(TASK_TYPE task, SUB_TASK_TYPE subtask,Object requestBody, ContainerInfo containerInfo) {
+    private static TaskInterface taskDeterminer(TASK_TYPE task, SUB_TASK_TYPE subtask,String requestBody, ContainerInfo containerInfo) {
            try {
                if(task.equals(null) || subtask.equals(null))
                    throw new Exception("Task not properly categorised");
@@ -86,7 +86,11 @@ public class Task {
 
                ContainerInfoInterface chosenContainer = containerInfo.fetchEventContainer();
 
-               String stringifiedRequestBody = new Gson().toJson(requestBody);
+               String newRequestBody = requestBody.replaceAll("[\\n\\t ]", "");
+
+               // Dev
+               System.out.println("------> newRequestBody" + newRequestBody);
+               // Dev
 
                TaskInterface exportTask = new TaskInterface(
                        task,
@@ -94,7 +98,7 @@ public class Task {
                        myContainerInfo.id,
                        myContainerInfo.service,
                        requestId,
-                       stringifiedRequestBody,
+                       newRequestBody,
                        chosenContainer.id,
                        chosenContainer.service
                );
@@ -109,10 +113,10 @@ public class Task {
     public static void sendTaskToEventsService(TaskInterface task, Jedis functionRedisPublisher) {
         try {
             String stringifiedTask = new Gson().toJson(task);
-            // Dev
-            System.out.println("------> About to be sent through redis" + stringifiedTask);
-            // Dev
 
+            // Dev
+            System.out.println("------> about to send stringifiedTask" + stringifiedTask);
+            // Dev
 
             String EventService = EnvSetup.EventServiceEvent;
             functionRedisPublisher.publish(EventService, stringifiedTask);
@@ -122,19 +126,26 @@ public class Task {
         }
     }
 
+    // TODO - Problem here - waitForResult not picking response that came in
     private static Object waitForResult(String requestId) {
           try {
               ReceivedEventInterface response = Util.getResponseFromBuffer(requestId);
 
-              while(response.equals(null) || response.responseBody.length() == 0) {
+              while(response.responseBody == null) {
                   Thread.sleep(WAITINGTIMEFORRESPONSE);
                   response = Util.getResponseFromBuffer(requestId);
               }
 
+              // Dev
+              String stringifiedResponse = new Gson().toJson(response);
+              System.out.println("------> waitForResult : 2. response: " + stringifiedResponse + "\n");
+              // Dev
+
               return response.responseBody;
 
           } catch(Exception e) {
-            Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "waitForResult", e.getMessage());
+              System.out.println(e);
+              Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "waitForResult", e.getMessage());
             return null;
           }
     }
@@ -151,6 +162,11 @@ public class Task {
             sendTaskToEventsService(task, redisPublisher);
 
             Object response = waitForResult(task.requestId);
+
+            // Dev
+            String stringifiedResponse = new Gson().toJson(response);
+            System.out.println("------> response returned: " + stringifiedResponse);
+            // Dev
 
             return response;
         } catch(Exception e) {

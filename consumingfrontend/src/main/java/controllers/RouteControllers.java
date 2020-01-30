@@ -34,14 +34,7 @@ public class RouteControllers {
        try {
          ContainerInfo containerInfo = DockerAPIInit.getContainerInfoInstance();
 
-         String requestBody = req.body().replaceAll("\r", "").replaceAll("\n", "").replaceAll("\t", "");
-
-         // Dev
-           // TODO - Format the requestBody to be valid JSON
-           System.out.println("------> changed requestBody is: " + requestBody);
-         // Dev
-
-         Object result = Task.taskController(requestBody, containerInfo);
+         Object result = Task.taskController(req.body(), containerInfo);
          res.type("application/json");
 
          JSONResponseWithResult sentResult = new JSONResponseWithResult("OK", result);

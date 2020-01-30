@@ -27,6 +27,10 @@ public class Logic {
             EventTaskType taskType = event.responseBody.length() > 0? EventTaskType.RESPONSE :
                     EventTaskType.RESPONSE;
 
+            // Dev
+            System.out.println("------> eventIsOurs: " + eventIsOurs);
+            // Dev
+
             if(!eventIsOurs)
                 return;
         /*

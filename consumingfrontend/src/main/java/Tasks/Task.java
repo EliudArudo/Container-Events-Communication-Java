@@ -1,4 +1,4 @@
-package tasks;
+package Tasks;
 
 import com.google.gson.Gson;
 import dockerapi.ContainerInfo;
@@ -21,7 +21,7 @@ public class Task {
 
     public Task () {}
 
-    private static TASK_TYPE determineTask(String requestBody) {
+    public static TASK_TYPE determineTask(String requestBody) {
         TASK_TYPE task;
         boolean isString = false;
         boolean isNumber = false;
@@ -29,20 +29,20 @@ public class Task {
         Map<String, Object> mappedRequestBody = new Gson().fromJson(requestBody, Map.class);
         Set<String> mapKeySet = mappedRequestBody.keySet();
 
-        // TODO - Build up this service and then test this
         for(String key:mapKeySet) {
-            isNumber = key.matches("[+-]?\\d*(\\.\\d+)?");
+            String value = (String) mappedRequestBody.get(key);
+            isNumber = value.matches("[+-]?\\d*(\\.\\d+)?");
             isString =  !isNumber;
         }
 
-        task = isString? TASK_TYPE.NUMBER :
-                isNumber? TASK_TYPE.STRING :
+        task = isString? TASK_TYPE.STRING :
+                isNumber? TASK_TYPE.NUMBER :
                         null;
 
         return task;
     }
 
-    private static SUB_TASK_TYPE determineSubTask(TASK_TYPE task, String requestBody) {
+    public static SUB_TASK_TYPE determineSubTask(TASK_TYPE task, String requestBody) {
         SUB_TASK_TYPE subtask = null;
 
         switch(task) {
@@ -75,7 +75,7 @@ public class Task {
         return subtask;
     }
 
-    private static TaskInterface taskDeterminer(TASK_TYPE task, SUB_TASK_TYPE subtask,String requestBody, ContainerInfo containerInfo) {
+    public static TaskInterface taskDeterminer(TASK_TYPE task, SUB_TASK_TYPE subtask,String requestBody, ContainerInfo containerInfo) {
            try {
                if(task.equals(null) || subtask.equals(null))
                    throw new Exception("Task not properly categorised");
@@ -118,7 +118,7 @@ public class Task {
         }
     }
 
-    private static Object waitForResult(String requestId) {
+    public static Object waitForResult(String requestId) {
           try {
               ReceivedEventInterface response = Util.getResponseFromBuffer(requestId);
 

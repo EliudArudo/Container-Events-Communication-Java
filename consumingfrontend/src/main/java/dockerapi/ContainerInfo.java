@@ -15,6 +15,7 @@ import static util.Util.getSelectedEventContainerIdAndService;
 
 // https://github.com/spotify/docker-client/blob/master/docs/user_manual.md
 
+// TODO - Test
 public class ContainerInfo {
     private static String packageName = "dockerapi::ContainerInfo";
 

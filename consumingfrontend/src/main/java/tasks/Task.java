@@ -1,4 +1,4 @@
-package Tasks;
+package tasks;
 
 import com.google.gson.Gson;
 import dockerapi.ContainerInfo;

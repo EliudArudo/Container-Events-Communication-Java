@@ -16,6 +16,9 @@ import static util.Util.getSelectedEventContainerIdAndService;
 // https://github.com/spotify/docker-client/blob/master/docs/user_manual.md
 
 // TODO - Test
+// Find out a way to create example containers which we'll test
+// method manipulation with
+
 public class ContainerInfo {
     private static String packageName = "dockerapi::ContainerInfo";
 
@@ -23,6 +26,11 @@ public class ContainerInfo {
     private String service;
 
     public ContainerInfo() {};
+
+    public ContainerInfo(String id, String service) {
+        this.id = id;
+        this.service = service;
+    };
 
     public ContainerInfoInterface fetchContainerInfo() {
         try {

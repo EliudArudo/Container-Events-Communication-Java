@@ -1,4 +1,4 @@
-package Tasks;
+package tasks;
 
 import dockerapi.ContainerInfo;
 import interfaces.*;

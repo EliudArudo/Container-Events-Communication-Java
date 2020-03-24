@@ -9,7 +9,6 @@ import interfaces.STATUS_TYPE;
 import log.Logging;
 import util.Util;
 
-// TODO - Test
 public class Logic {
     private static String packageName = "logic::Logic";
 
@@ -22,7 +21,7 @@ public class Logic {
             boolean eventIsOurs = event.containerId.equals(offlineContainerInfo.id) && event.service.equals(offlineContainerInfo.service);
 
             EventTaskType taskType = event.responseBody.length() > 0? EventTaskType.RESPONSE :
-                    EventTaskType.RESPONSE;
+                    EventTaskType.TASK;
 
             if(!eventIsOurs)
                 return;

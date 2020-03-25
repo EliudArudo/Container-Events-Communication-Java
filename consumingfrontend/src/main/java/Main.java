@@ -2,7 +2,7 @@ import env.EnvSetup;
 import initialize.*;
 
 public class Main {
-    // Github actions v5
+    // Github actions v7
     public static void main(String[] args) {
         EnvSetup.fetchEnvVariables();
 

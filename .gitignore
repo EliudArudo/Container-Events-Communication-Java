@@ -4,7 +4,6 @@ target
 .idea
 *.iml
 pom-for-docker.xml
-Dockerfile
 *txt
 
 docker-stack-dev.yaml

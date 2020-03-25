@@ -9,7 +9,6 @@ import log.Logging;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-// TODO - Test
 public class Util {
     private static String packageName = "util::Util";
 
@@ -17,6 +16,14 @@ public class Util {
     private static ArrayList<ReceivedEventInterface> responses = new ArrayList();
 
     public Util () {}
+
+    public static ArrayList<String> getResponseBuffer() {
+       return (ArrayList<String>) responseBuffer.clone();
+    }
+
+    public static ArrayList<ReceivedEventInterface> getResponses () {
+        return (ArrayList<ReceivedEventInterface>) responses.clone();
+    }
 
     public static void pushResponseToBuffers(ReceivedEventInterface response) {
         responseBuffer.add(response.requestId);

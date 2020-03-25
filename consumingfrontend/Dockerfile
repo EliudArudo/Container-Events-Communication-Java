@@ -4,7 +4,10 @@ FROM maven:3.5-jdk-8-alpine as builder
 
 # Copy local code to the container image.
 WORKDIR /app
-COPY pom-for-docker.xml pom.xml
+COPY pomfile pomfile
+
+RUN mv pomfile pom.xml
+
 COPY src ./src
 
 # Build a release artifact.

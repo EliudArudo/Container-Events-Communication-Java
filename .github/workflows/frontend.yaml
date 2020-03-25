@@ -20,6 +20,8 @@ jobs:
             - name: Rename pomfile to pom.xml   
               working-directory: ./consumingfrontend  
               run: mv pomfile pom.xml
+            - name: Remove download logs   
+              run: export MAVEN_OPTS="-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
             - name: Testing with maven   
               working-directory: ./consumingfrontend  
-              run: mvn test -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
+              run: mvn test

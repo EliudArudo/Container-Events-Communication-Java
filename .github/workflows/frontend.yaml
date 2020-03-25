@@ -17,6 +17,9 @@ jobs:
               uses: actions/setup-java@v1
               with:
                 java-version: 1.8
+            - name: Rename pomfile to pom.xml   
+              working-directory: ./consumingfrontend  
+              run: mv pomfile pom.xml
             - name: Testing with maven   
               working-directory: ./consumingfrontend  
               run: mvn test

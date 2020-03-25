@@ -19,7 +19,7 @@ RUN mvn package -DskipTests
 FROM openjdk:8-jre-alpine
 
 # Copy the jar to the production image from the builder stage.
-COPY --from=builder /app/target/consumingfrontend-jar-with-dependencies.jar /consumingfrontend.jar
+COPY --from=builder /app/target/consumingfrontend-1.0-SNAPSHOT.jar /consumingfrontend.jar
 
 EXPOSE 4567
 # Run the web service on container startup.

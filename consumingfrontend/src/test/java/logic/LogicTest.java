@@ -52,7 +52,7 @@ public class LogicTest {
         String stringifiedDummyEvent = new Gson().toJson(event);
         Logic.eventDeterminer(stringifiedDummyEvent, dummyContainerInfoClass);
 
-        ReceivedEventInterface _ = Util.getResponseFromBuffer(event.requestId);
+        Util.getResponseFromBuffer(event.requestId);
         ReceivedEventInterface nullEvent = Util.getResponseFromBuffer(event.requestId);
 
         assertEquals(null, nullEvent.requestId);

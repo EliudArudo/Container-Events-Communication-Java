@@ -16,8 +16,8 @@ import java.util.UUID;
 public class Task {
     private static String packageName = "tasks::Task";
 
-    private static final int WAITINGTIMEFORRESPONSE = 10;
-    private static final int EXPIRATIONTIME = WAITINGTIMEFORRESPONSE * 100 * 5;
+    private static final int WAITINGTIMEFORRESPONSE = 5;
+    private static final int EXPIRATIONTIME = WAITINGTIMEFORRESPONSE * 1000;
 
     public Task () {}
 
@@ -29,8 +29,13 @@ public class Task {
         Map<String, Object> mappedRequestBody = new Gson().fromJson(requestBody, Map.class);
         Set<String> mapKeySet = mappedRequestBody.keySet();
 
-        for(String key:mapKeySet) {
-            String value = (String) mappedRequestBody.get(key);
+        for(Object key:mapKeySet) {
+
+            Object rawValue = mappedRequestBody.get(key);
+
+            // String value = (String) mappedRequestBody.get(key);
+            String value = rawValue.toString();
+
             isNumber = value.matches("[+-]?\\d*(\\.\\d+)?");
             isString =  !isNumber;
         }

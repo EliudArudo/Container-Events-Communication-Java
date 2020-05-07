@@ -1,7 +1,7 @@
 package tasks;
 
 import com.google.gson.Gson;
-import dockerapi.ContainerInfo;
+import dockerapi.DockerAPI;
 import interfaces.*;
 import log.Logging;
 
@@ -76,16 +76,16 @@ public class Task {
         return subtask;
     }
 
-    public static TaskInterface taskDeterminer(TASK_TYPE task, SUB_TASK_TYPE subtask,String requestBody, ContainerInfo containerInfo) {
+    public static TaskInterface taskDeterminer(TASK_TYPE task, SUB_TASK_TYPE subtask,String requestBody, DockerAPI dockerAPI) {
            try {
                if(task.equals(null) || subtask.equals(null))
                    throw new Exception("Task not properly categorised");
 
-               ContainerInfoInterface myContainerInfo = containerInfo.fetchContainerInfo();
+               ContainerInfoInterface myContainerInfo = dockerAPI.fetchContainerInfo();
 
                String requestId = UUID.randomUUID().toString();
 
-               ContainerInfoInterface chosenContainer = containerInfo.fetchContainerInfo();
+               ContainerInfoInterface chosenContainer = dockerAPI.fetchContainerInfo();
 
                String newRequestBody = requestBody.replaceAll("[\\n\\t ]", "");
 

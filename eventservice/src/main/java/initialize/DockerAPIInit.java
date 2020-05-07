@@ -1,7 +1,7 @@
 package initialize;
 
 import com.google.gson.Gson;
-import dockerapi.ContainerInfo;
+import dockerapi.DockerAPI;
 import interfaces.ContainerInfoInterface;
 import interfaces.STATUS_TYPE;
 import log.Logging;
@@ -9,15 +9,15 @@ import log.Logging;
 public class DockerAPIInit {
     private static String packageName = "initialize::DockerAPIInit";
 
-    private static ContainerInfo containerInfo;
+    private static DockerAPI dockerAPI;
 
     public DockerAPIInit() {}
 
     public static void initialFetchMyContainerInfo() {
         try {
-            containerInfo = new ContainerInfo();
+            dockerAPI = new DockerAPI();
 
-            ContainerInfoInterface fetchedContainerInfo = containerInfo.fetchContainerInfo();
+            ContainerInfoInterface fetchedContainerInfo = dockerAPI.fetchContainerInfo();
 
             String containerInfoJSON = new Gson().toJson(fetchedContainerInfo);
 
@@ -27,7 +27,7 @@ public class DockerAPIInit {
         }
     }
 
-    public static ContainerInfo getContainerInfoInstance() {
-        return containerInfo;
+    public static DockerAPI getContainerInfoInstance() {
+        return dockerAPI;
     }
 }

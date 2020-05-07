@@ -1,5 +1,7 @@
 import env.EnvSetup;
-import initialize.*;
+import initialize.DockerAPIInit;
+import initialize.MongoDBInit;
+import initialize.RedisInit;
 
 public class Main {
     public static void main(String[] args) {
@@ -7,5 +9,6 @@ public class Main {
 
         DockerAPIInit.initialFetchMyContainerInfo();
         RedisInit.initRedis();
+        MongoDBInit.initialiseConnection();
     }
 }

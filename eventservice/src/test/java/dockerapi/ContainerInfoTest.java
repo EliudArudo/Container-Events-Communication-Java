@@ -22,9 +22,9 @@ public class ContainerInfoTest {
         String dummyContainerID = "dummyContainerID";
         String dummyContainerService = "dummyContainerService";
 
-        ContainerInfo  containerInfo = new ContainerInfo(dummyContainerID, dummyContainerService);
+        DockerAPI dockerAPI = new DockerAPI(dummyContainerID, dummyContainerService);
 
-        ContainerInfoInterface fetchedContainerInfo = containerInfo.fetchOfflineContainerInfo();
+        ContainerInfoInterface fetchedContainerInfo = dockerAPI.fetchOfflineContainerInfo();
 
         assertEquals(dummyContainerID, fetchedContainerInfo.id);
         assertEquals(dummyContainerService, fetchedContainerInfo.service);
@@ -32,7 +32,7 @@ public class ContainerInfoTest {
 
     @Test
     public void TestGetParsedContainers() {
-        ContainerInfo  containerInfo = new ContainerInfo();
+        DockerAPI dockerAPI = new DockerAPI();
 
         String dummyContainerID = "dummyContainerID";
         String dummyContainerService = "dummyContainerService";
@@ -43,7 +43,7 @@ public class ContainerInfoTest {
         containerArray.add(container);
 
         try {
-            ArrayList<ContainerInfoInterface> parsedContainers = containerInfo.getParsedContainers(containerArray);
+            ArrayList<ContainerInfoInterface> parsedContainers = dockerAPI.getParsedContainers(containerArray);
             ContainerInfoInterface parsedContainer = parsedContainers.get(0);
 
             assertEquals(dummyContainerID, parsedContainer.id);
@@ -57,7 +57,7 @@ public class ContainerInfoTest {
     @Test
     public void TestSetContainerInfoUsingContainerArray() {
         try {
-            ContainerInfo  containerInfo = new ContainerInfo();
+            DockerAPI dockerAPI = new DockerAPI();
 
             String dummyContainerID = InetAddress.getLocalHost().getHostName();
             String dummyContainerService = "dummyContainerService";
@@ -67,9 +67,9 @@ public class ContainerInfoTest {
             List<Container> containerArray = new ArrayList<>();
             containerArray.add(container);
 
-            containerInfo.setContainerInfoUsingContainerArray(containerArray);
+            dockerAPI.setContainerInfoUsingContainerArray(containerArray);
 
-            ContainerInfoInterface fetchedOfflineContainerInfo = containerInfo.fetchOfflineContainerInfo();
+            ContainerInfoInterface fetchedOfflineContainerInfo = dockerAPI.fetchOfflineContainerInfo();
 
             assertEquals(dummyContainerService, fetchedOfflineContainerInfo.service);
 

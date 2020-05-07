@@ -4,6 +4,7 @@ import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.messages.Container;
 import interfaces.ContainerInfoInterface;
+import interfaces.ParsedContainerInterface;
 import interfaces.STATUS_TYPE;
 import log.Logging;
 
@@ -16,20 +17,20 @@ import java.util.List;
 // Find out a way to create example containers which we'll test
 // method manipulation with
 
-public class ContainerInfo {
+public class DockerAPI {
     private static String packageName = "dockerapi::ContainerInfo";
 
-    private String id;
-    private String service;
+    private static String id;
+    private static String service;
 
-    public ContainerInfo() {};
+    public DockerAPI() {};
 
-    public ContainerInfo(String id, String service) {
+    public DockerAPI(String id, String service) {
         this.id = id;
         this.service = service;
     };
 
-    public ContainerInfoInterface fetchContainerInfo() {
+    public static ContainerInfoInterface fetchContainerInfo() {
         try {
             initialise();
 
@@ -41,31 +42,13 @@ public class ContainerInfo {
         }
     }
 
-    public ContainerInfoInterface fetchOfflineContainerInfo() {
+    public static ContainerInfoInterface fetchOfflineContainerInfo() {
         ContainerInfoInterface containerInfo = new ContainerInfoInterface(id, service);
         return containerInfo;
     }
 
-    public ArrayList<ContainerInfoInterface> getFreshContainers() {
-            ArrayList<ContainerInfoInterface> parsedContainers = new ArrayList();
 
-        try {
-            List<Container> containerArray = getDockerContainerList();
-
-            if(containerArray.size() == 0)
-                throw new Error("getFreshContainers: No Containers to parse");
-
-            parsedContainers = getParsedContainers(containerArray);
-
-        } catch(Exception e) {
-            Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "getFreshContainers", e.getMessage());
-        } finally {
-            return parsedContainers;
-        }
-
-    }
-
-    public void initialise() {
+    public static void initialise() {
         try {
             List containerArray = getDockerContainerList();
             setContainerInfoUsingContainerArray(containerArray);
@@ -74,7 +57,7 @@ public class ContainerInfo {
         }
     }
 
-    public List<Container> getDockerContainerList() {
+    public static List<Container> getDockerContainerList() {
              List<Container> containerArray;
 
          try {
@@ -90,7 +73,25 @@ public class ContainerInfo {
          }
     }
 
-    public void setContainerInfoUsingContainerArray(List<Container> containerArray) {
+    public static List<ParsedContainerInterface> getFreshContainers() {
+        try {
+
+            List<Container> containerArray = getDockerContainerList();
+
+            if(containerArray.size() == 0) {
+                throw new Exception("getFreshContainers: No containers to parse");
+            }
+
+            List<ParsedContainerInterface> parsedContainers = getParsedContainers(containerArray);
+
+            return parsedContainers;
+        } catch(Exception e) {
+             Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "getFreshContainers", e.getMessage());
+             return new ArrayList<>();
+        }
+    }
+
+    public static void setContainerInfoUsingContainerArray(List<Container> containerArray) {
         try {
           String shortContainerId = InetAddress.getLocalHost().getHostName();
 
@@ -111,20 +112,20 @@ public class ContainerInfo {
         }
     }
 
-    public ArrayList<ContainerInfoInterface> getParsedContainers(List<Container> containerArray) throws Exception  {
+    public static List<ParsedContainerInterface> getParsedContainers(List<Container> containerArray) throws Exception  {
 
         try {
 
-            ArrayList<ContainerInfoInterface> parsedContainers = new ArrayList();
+            ArrayList<ParsedContainerInterface> parsedContainers = new ArrayList();
 
             if(containerArray.size() == 0)
                 throw new Error("getParsedContainers: No containers brought in");
 
             for(Container container:containerArray) {
-                String id = container.id();
-                String service = container.labels().get("com.docker.swarm.service.name");
+                String containerId = container.id();
+                String containerService = container.labels().get("com.docker.swarm.service.name");
 
-                ContainerInfoInterface parsedContainerInfo = new ContainerInfoInterface(id, service);
+                ParsedContainerInterface parsedContainerInfo = new ParsedContainerInterface(containerId, containerService);
 
                 parsedContainers.add(parsedContainerInfo);
             }

@@ -1,7 +1,7 @@
 package initialize;
 
 import controllers.RedisController;
-import dockerapi.ContainerInfo;
+import dockerapi.DockerAPI;
 import env.EnvSetup;
 import interfaces.STATUS_TYPE;
 import log.Logging;
@@ -52,8 +52,8 @@ public class RedisInit {
             subscriber.subscribe(new JedisPubSub() {
                 @Override
                 public void onMessage(String channel, String message) {
-                    ContainerInfo containerInfo = DockerAPIInit.getContainerInfoInstance();
-                    RedisController.redisControllerSetup(message, containerInfo);
+                    DockerAPI dockerAPI = DockerAPIInit.getContainerInfoInstance();
+                    RedisController.redisControllerSetup(message, dockerAPI);
                 }
             }, consumingService);
         } catch(Exception e) {

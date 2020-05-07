@@ -2,7 +2,7 @@ package logic;
 
 import com.google.gson.Gson;
 import databaseops.MongoDBOps;
-import dockerapi.ContainerInfo;
+import dockerapi.DockerAPI;
 import env.EnvSetup;
 import initialize.RedisInit;
 import interfaces.*;
@@ -12,12 +12,12 @@ import redis.clients.jedis.Jedis;
 public class Logic {
     private static String packageName = "logic::Logic";
 
-    public static void eventDeterminer(String sentEvent, ContainerInfo functionContainerInfo) {
+    public static void eventDeterminer(String sentEvent, DockerAPI functionDockerAPI) {
 
         try {
             EventInterface event = new Gson().fromJson(sentEvent, EventInterface.class);
 
-            ContainerInfoInterface offlineContainerInfo = functionContainerInfo.fetchOfflineContainerInfo();
+            ContainerInfoInterface offlineContainerInfo = functionDockerAPI.fetchOfflineContainerInfo();
 
             boolean eventIsOurs = event.serviceContainerId.equals(offlineContainerInfo.id) && event.serviceContainerService.equals(offlineContainerInfo.service);
 

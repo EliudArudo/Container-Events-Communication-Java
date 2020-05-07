@@ -1,10 +1,10 @@
 package controllers;
 
-import dockerapi.ContainerInfo;
+import dockerapi.DockerAPI;
 import logic.Logic;
 
 public class RedisController {
-    public static void redisControllerSetup(String sentEvent, ContainerInfo functionContainerInfo) {
-        Logic.eventDeterminer(sentEvent, functionContainerInfo);
+    public static void redisControllerSetup(String sentEvent, DockerAPI functionDockerAPI) {
+        Logic.eventDeterminer(sentEvent, functionDockerAPI);
     }
 }

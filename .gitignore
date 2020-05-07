@@ -5,5 +5,8 @@ target
 *.iml
 pom-for-docker.xml
 *txt
+*classpath
+*project
+*settings
 
 docker-stack-dev.yaml

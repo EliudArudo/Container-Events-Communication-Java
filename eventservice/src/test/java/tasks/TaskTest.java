@@ -1,11 +1,10 @@
 package tasks;
 
-import dockerapi.ContainerInfo;
+import dockerapi.DockerAPI;
 import interfaces.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +24,7 @@ public class TaskTest {
     ContainerInfoInterface dummyEventContainerInfo = new ContainerInfoInterface("dummyEventContainerId", "dummyEventContainerService");
 
     @Mock
-    ContainerInfo containerInfo;
+    DockerAPI dockerAPI;
 
 
     @Test
@@ -93,7 +92,7 @@ public class TaskTest {
         TASK_TYPE task = Task.determineTask(invalidRequestBody);
         SUB_TASK_TYPE subtask = Task.determineSubTask(task, invalidRequestBody);
 
-        Task.taskDeterminer(task, subtask, stringsAddRequestBody, containerInfo);
+        Task.taskDeterminer(task, subtask, stringsAddRequestBody, dockerAPI);
     }
 
 }

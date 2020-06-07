@@ -13,7 +13,7 @@ public class MongoDBEnvInterface {
     }
 
     public String getFullURI() {
-        String joinedURI = "mongodb://" + uri + ":" + "/" + database;
+        String joinedURI = "mongodb://" + uri + ":" + port + "/" + database;
         return joinedURI;
     }
 

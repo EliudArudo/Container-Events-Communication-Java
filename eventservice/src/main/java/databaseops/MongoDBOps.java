@@ -101,7 +101,7 @@ public class MongoDBOps {
             Request existingRequestDocument = requestCollection.findOne(jsonRequestQuery).as(Request.class);
 
             if(existingRequestDocument != null) {
-                existingRequestDocumentID = existingRequestDocument._id;
+                existingRequestDocumentID = existingRequestDocument.getId();
             }
 
         } catch(Exception e) {
@@ -120,11 +120,10 @@ public class MongoDBOps {
             taskQuery.put("fromTask", task.task.toString());
             taskQuery.put("fromSubtask", task.subtask.toString());
 
-            String requestBodyId = getExistingRequestDocumentID(task.requestBody);
+            if(task.requestBody != null  && task.requestBody.length() > 0) {
+                String requestBodyId = getExistingRequestDocumentID(task.requestBody);
 
-            taskQuery.put("requestBodyId", requestBodyId);
-
-            if(requestBodyId.length() > 0) {
+                taskQuery.put("requestBodyId", requestBodyId);
                 String jsonTaskQuery = new Gson().toJson(taskQuery);
 
                 MongoCollection tasksCollection = getTaskCollection();
@@ -145,7 +144,7 @@ public class MongoDBOps {
        try {
            parsedTask.containerId = mongoDBTask.fromContainerId;
            parsedTask.containerService = mongoDBTask.fromContainerService;
-           parsedTask.recordId = mongoDBTask._id;
+           parsedTask.recordId = mongoDBTask.getId();
            parsedTask.task = mongoDBTask.task == "NUMBER"? TASK_TYPE.NUMBER : TASK_TYPE.STRING;
            parsedTask.subtask = mongoDBTask.subtask == "ADD"? SUB_TASK_TYPE.ADD :
                    mongoDBTask.subtask == "SUBTRACT"? SUB_TASK_TYPE.SUBTRACT :
@@ -156,14 +155,17 @@ public class MongoDBOps {
            parsedTask.chosenContainerId = selectedContainerInfo.id;
            parsedTask.chosenContainerService = selectedContainerInfo.service;
 
-           String toResponseBodyId = mongoDBTask.toResponseBodyId;
-           MongoCollection responseCollection = getResponsesCollection();
-           ObjectId responseId = new ObjectId(toResponseBodyId);
+           if(mongoDBTask.toResponseBodyId != null && mongoDBTask.toResponseBodyId.length() > 0) {
 
-           Response response = responseCollection.findOne(responseId).as(Response.class);
+               String toResponseBodyId = mongoDBTask.toResponseBodyId;
+               MongoCollection responseCollection = getResponsesCollection();
+               ObjectId responseId = new ObjectId(toResponseBodyId);
 
-           if(response.response.length() > 0)
+               Response response = responseCollection.findOne(responseId).as(Response.class);
+
                parsedTask.responseBody = response.response;
+           }
+
 
        } catch(Exception e) {
            Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "getNewParsedTask", e.getMessage());
@@ -189,7 +191,7 @@ public class MongoDBOps {
 
             parsedTask.containerId = mongoDBTask.fromContainerId;
             parsedTask.containerService = mongoDBTask.fromContainerService;
-            parsedTask.recordId = mongoDBTask._id;
+            parsedTask.recordId = mongoDBTask.getId();
             parsedTask.task = mongoDBTask.task == "NUMBER"? TASK_TYPE.NUMBER : TASK_TYPE.STRING;
             parsedTask.subtask = mongoDBTask.subtask == "ADD"? SUB_TASK_TYPE.ADD :
               mongoDBTask.subtask == "SUBTRACT"? SUB_TASK_TYPE.SUBTRACT :
@@ -211,19 +213,20 @@ public class MongoDBOps {
         String requestId = null;
         try {
 
-            Request newRequest = new Request();
-            newRequest.request = requestBody;
+            Request request = new Request();
+            request.request = requestBody;
 
             MongoCollection requestsCollection = getRequestsCollection();
-            requestsCollection.save(newRequest);
+            String newRequest = new Gson().toJson(request);
+            requestsCollection.insert(newRequest);
 
             MongoCollection requestCollection = getRequestsCollection();
             Map<String, String> requestQueryMap = new HashMap();
             requestQueryMap.put("request", requestBody);
             String jsonRequestQuery = new Gson().toJson(requestQueryMap);
-            Request request = requestCollection.findOne(jsonRequestQuery).as(Request.class);
+            Request foundRequest = requestCollection.findOne(jsonRequestQuery).as(Request.class);
 
-            requestId = request._id;
+            requestId = foundRequest.getId();
 
         } catch(Exception e) {
             Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "saveNewRequestAndGetID", e.getMessage());
@@ -236,18 +239,19 @@ public class MongoDBOps {
         String responseId = null;
         try {
 
-            Response newResponse = new Response();
-            newResponse.response = responseBody;
+            Response response = new Response();
+            response.response = responseBody;
 
             MongoCollection responseCollection = getResponsesCollection();
-            responseCollection.save(newResponse);
+            String newResponse = new Gson().toJson(response);
+            responseCollection.insert(newResponse);
 
             Map<String, String> responseQueryMap = new HashMap();
             responseQueryMap.put("response", responseBody);
             String jsonResponseQuery = new Gson().toJson(responseQueryMap);
-            Response response = responseCollection.findOne(jsonResponseQuery).as(Response.class);
+            Response foundResponse = responseCollection.findOne(jsonResponseQuery).as(Response.class);
 
-            responseId = response._id;
+            responseId = foundResponse.getId();
 
         } catch(Exception e) {
             Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "saveNewRequestAndGetID", e.getMessage());
@@ -296,8 +300,12 @@ public class MongoDBOps {
             String fromContainerId = funcTask.containerId;
             String fromContainerService = funcTask.service;
             String fromReceivedTime = getCurrentISOTimeString();
-            String task = funcTask.toString();
-            String subtask = funcTask.subtask.toString();
+            String task = funcTask.task == TASK_TYPE.NUMBER? "NUMBER" :
+                    funcTask.task == TASK_TYPE.STRING? "STRING" : null;;
+            String subtask = funcTask.subtask == SUB_TASK_TYPE.ADD? "ADD" :
+                    funcTask.subtask == SUB_TASK_TYPE.SUBTRACT? "SUBTRACT" :
+                            funcTask.subtask == SUB_TASK_TYPE.MULTIPLY? "MULTIPLY" :
+                                    funcTask.subtask == SUB_TASK_TYPE.DIVIDE? "DIVIDE" : null;;
 
 
             ContainerInfoInterface selectedContainerInfo = Util.getSelectedContainerIdAndService(funcTask);
@@ -323,17 +331,22 @@ public class MongoDBOps {
             newInitTaskRecord.serviceContainerId = serviceContainerId;
             newInitTaskRecord.serviceContainerService = serviceContainerService;
 
+
             MongoCollection tasksCollection = getTaskCollection();
-            tasksCollection.save(newInitTaskRecord);
+            String newInitTask = new Gson().toJson(newInitTaskRecord);
+            tasksCollection.insert(newInitTask);
 
             Map<String, String> taskQueryMap = new HashMap();
             taskQueryMap.put("requestBodyId", requestBodyId);
             String jsonTaskQuery = new Gson().toJson(taskQueryMap);
 
             Task newTask = tasksCollection.findOne(jsonTaskQuery).as(Task.class);
+
+            // TODO - Continue from here
             parsedTask = getNewParsedTask(newTask, selectedContainerInfo);
 
         } catch(Exception e) {
+            e.printStackTrace();
             Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "recordNewInitialisedTaskWithRequestId", e.getMessage());
         } finally {
           return parsedTask;
@@ -359,6 +372,8 @@ public class MongoDBOps {
     public static InitialisedRecordInfoInterface recordNewTaskInDB(EventInterface task) {
 
         Task existingTask = getExistingTask(task);
+
+        // TODO - Continue from here - request being recorded twice, plus procession till end
 
         if(existingTask != null) {
             InitialisedRecordInfoInterface parsedTask = getExistingParsedTask(existingTask);
@@ -393,6 +408,7 @@ public class MongoDBOps {
            MongoCollection taskCollection = getTaskCollection();
            Task task = taskCollection.findOne(recordId).as(Task.class);
            response = getParsedResponse(funcResponse, task);
+
 
        } catch(Exception e) {
 

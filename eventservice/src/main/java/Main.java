@@ -8,7 +8,8 @@ public class Main {
         EnvSetup.fetchEnvVariables();
 
         DockerAPIInit.initialFetchMyContainerInfo();
-        RedisInit.initRedis();
         MongoDBInit.initialiseConnection();
+        RedisInit.initRedis();
+
     }
 }

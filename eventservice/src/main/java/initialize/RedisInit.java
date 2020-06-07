@@ -45,9 +45,11 @@ public class RedisInit {
     public static void setUpRedisSubscription(String host, int port) {
 
         try {
-            String consumingService = EnvSetup.ConsumingServiceEvent;
+            String eventService = EnvSetup.EventServiceEvent;
 
             subscriber = new Jedis(host, port);
+
+            Logging.logStatusFileMessage(STATUS_TYPE.Success, packageName, "setUpRedisSubscription", "Redis connection successful");
 
             subscriber.subscribe(new JedisPubSub() {
                 @Override
@@ -55,7 +57,8 @@ public class RedisInit {
                     DockerAPI dockerAPI = DockerAPIInit.getContainerInfoInstance();
                     RedisController.redisControllerSetup(message, dockerAPI);
                 }
-            }, consumingService);
+            }, eventService);
+
         } catch(Exception e) {
             Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "setUpRedisSubscription", e.getMessage());
         }

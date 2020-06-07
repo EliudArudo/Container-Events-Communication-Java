@@ -15,6 +15,7 @@ public class Logic {
     public static void eventDeterminer(String sentEvent, DockerAPI functionDockerAPI) {
 
         try {
+            System.out.println("\n sentEvent :\n " + sentEvent);
             EventInterface event = new Gson().fromJson(sentEvent, EventInterface.class);
 
             ContainerInfoInterface offlineContainerInfo = functionDockerAPI.fetchOfflineContainerInfo();
@@ -36,6 +37,7 @@ public class Logic {
             }
 
         } catch(Exception e) {
+            e.printStackTrace();
             Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "eventDeterminer", e.getMessage());
         }
     }
@@ -54,7 +56,7 @@ public class Logic {
     public static void recordAndAllocateTask(EventInterface task) {
         InitialisedRecordInfoInterface initRecordInfo = MongoDBOps.recordNewTaskInDB(task);
 
-        if(initRecordInfo != null && initRecordInfo.existing) {
+        if(initRecordInfo != null && initRecordInfo.existing != null && initRecordInfo.existing) {
             EventInterface responseInfo = getParsedResponseInfo(task, initRecordInfo);
             sendEventToContainer(responseInfo);
             return;
@@ -75,12 +77,12 @@ public class Logic {
     }
 
     public static void sendEventToContainer(EventInterface  eventInfo) {
-         String stringifiedEvents = new Gson().toJson(eventInfo);
+         String stringifiedResponse = new Gson().toJson(eventInfo);
 
          Jedis redisPublisher = RedisInit.getRedisPublisher();
          String ConsumingService = EnvSetup.ConsumingServiceEvent;
 
-         redisPublisher.publish(ConsumingService, stringifiedEvents);
+         redisPublisher.publish(ConsumingService, stringifiedResponse);
     }
 
     public  static EventInterface parseEventFromRecordInfo(InitialisedRecordInfoInterface initRecordInfo) {

@@ -19,8 +19,10 @@ public class MongoDBInit {
 
              mongoClient = new MongoClient(new MongoClientURI(mongoURI));
 
+            Logging.logStatusFileMessage(STATUS_TYPE.Success, packageName, "initialiseConnection", "MongoDB connection successful");
+
         } catch(Exception e) {
-            Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "setUpRedisPublisher", e.getMessage());
+            Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "initialiseConnection", e.getMessage());
         }
     }
 

@@ -11,7 +11,7 @@ import redis.clients.jedis.JedisPubSub;
 //https://www.baeldung.com/jedis-java-redis-client-library
 
 public class RedisInit {
-    private static String packageName = "initialize::DockerAPIInit";
+    private static String packageName = "initialize::RedisInit";
 
     private static Jedis publisher;
     private static Jedis subscriber;

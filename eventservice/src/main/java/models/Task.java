@@ -6,7 +6,7 @@ import org.jongo.marshall.jackson.oid.MongoObjectId;
 public class Task {
     @MongoId // auto
     @MongoObjectId
-    private String key;
+    private String _id;
 
     public String fromRequestId;
     public String fromContainerId;
@@ -24,7 +24,31 @@ public class Task {
     public String toResponseBodyId;
     public String fromSentTime;
 
+    public Task() {}
+
+    public Task(Task task) {
+        this.setTask(task);
+    }
+
     public String getId() {
-        return this.key;
+        return this._id;
+    }
+
+    private void setTask(Task task) {
+        this.fromRequestId = task.fromRequestId;
+        this.fromContainerId = task.fromContainerId;
+        this.fromContainerService = task.fromContainerService;
+        this.fromReceivedTime = task.fromReceivedTime;
+        this.task = task.task;
+        this.subtask = task.subtask;
+        this.requestBodyId = task.requestBodyId;
+        this.toContainerId = task.toContainerId;
+        this.toContainerService = task.toContainerService;
+        this.serviceContainerId = task.serviceContainerId;
+        this.serviceContainerService = task.serviceContainerService;
+
+        this.toReceivedTime = task.toReceivedTime;
+        this.toResponseBodyId = task.toResponseBodyId;
+        this.fromSentTime = task.fromSentTime;
     }
 }

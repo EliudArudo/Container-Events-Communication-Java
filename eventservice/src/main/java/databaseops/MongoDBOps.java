@@ -1,5 +1,7 @@
 package databaseops;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
@@ -12,8 +14,9 @@ import models.Request;
 import models.Response;
 import models.Task;
 import org.bson.types.ObjectId;
-import org.jongo.Jongo;
-import org.jongo.MongoCollection;
+import org.jongo.*;
+import org.jongo.marshall.jackson.JacksonMapper;
+import org.jongo.marshall.jackson.configuration.MapperModifier;
 import util.Util;
 
 import java.text.DateFormat;
@@ -52,7 +55,13 @@ public class MongoDBOps {
         try {
             DB db = getDB();
 
-            Jongo jongo = new Jongo(db);
+            Mapper mapper = new JacksonMapper.Builder().addModifier(new MapperModifier() {
+                public void modify(ObjectMapper mapper) {
+                    mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
+                }
+            }).build();
+
+            Jongo jongo = new Jongo(db, mapper);
             return jongo.getCollection("tasks");
 
         } catch(Exception e) {
@@ -63,7 +72,7 @@ public class MongoDBOps {
 
     private static MongoCollection getRequestsCollection () {
         try {
-            DB db = getDB();;
+            DB db = getDB();
 
             Jongo jongo = new Jongo(db);
             return jongo.getCollection("requests");
@@ -117,8 +126,8 @@ public class MongoDBOps {
         try {
             Map<String, String> taskQuery = new HashMap();
             taskQuery.put("fromContainerService", task.service);
-            taskQuery.put("fromTask", task.task.toString());
-            taskQuery.put("fromSubtask", task.subtask.toString());
+            taskQuery.put("task", task.task.toString());
+            taskQuery.put("subtask", task.subtask.toString());
 
             if(task.requestBody != null  && task.requestBody.length() > 0) {
                 String requestBodyId = getExistingRequestDocumentID(task.requestBody);
@@ -145,23 +154,27 @@ public class MongoDBOps {
            parsedTask.containerId = mongoDBTask.fromContainerId;
            parsedTask.containerService = mongoDBTask.fromContainerService;
            parsedTask.recordId = mongoDBTask.getId();
-           parsedTask.task = mongoDBTask.task == "NUMBER"? TASK_TYPE.NUMBER : TASK_TYPE.STRING;
-           parsedTask.subtask = mongoDBTask.subtask == "ADD"? SUB_TASK_TYPE.ADD :
-                   mongoDBTask.subtask == "SUBTRACT"? SUB_TASK_TYPE.SUBTRACT :
-                           mongoDBTask.subtask == "MULTIPLY"? SUB_TASK_TYPE.MULTIPLY :
-                                   mongoDBTask.subtask == "DIVIDE"? SUB_TASK_TYPE.DIVIDE : null;
+           /* NOTE: Use '.equals' to compare strings, NOT '=='*/
+           parsedTask.task = mongoDBTask.task.equals("NUMBER")? TASK_TYPE.NUMBER : TASK_TYPE.STRING;
+           parsedTask.subtask = mongoDBTask.subtask.equals("ADD")? SUB_TASK_TYPE.ADD :
+                   mongoDBTask.subtask.equals("SUBTRACT")? SUB_TASK_TYPE.SUBTRACT :
+                           mongoDBTask.subtask.equals("MULTIPLY")? SUB_TASK_TYPE.MULTIPLY :
+                                   mongoDBTask.subtask.equals("DIVIDE")? SUB_TASK_TYPE.DIVIDE : null;
+
+
+
            parsedTask.serviceContainerId = mongoDBTask.serviceContainerId;
            parsedTask.serviceContainerService = mongoDBTask.serviceContainerService;
            parsedTask.chosenContainerId = selectedContainerInfo.id;
            parsedTask.chosenContainerService = selectedContainerInfo.service;
 
+
            if(mongoDBTask.toResponseBodyId != null && mongoDBTask.toResponseBodyId.length() > 0) {
 
                String toResponseBodyId = mongoDBTask.toResponseBodyId;
                MongoCollection responseCollection = getResponsesCollection();
-               ObjectId responseId = new ObjectId(toResponseBodyId);
 
-               Response response = responseCollection.findOne(responseId).as(Response.class);
+               Response response = responseCollection.findOne(Oid.withOid(toResponseBodyId)).as(Response.class);
 
                parsedTask.responseBody = response.response;
            }
@@ -182,21 +195,16 @@ public class MongoDBOps {
 
             MongoCollection responseCollection = getResponsesCollection();
 
-            Map<String, String> responseMap = new HashMap();
-            responseMap.put("_id", toResponseBodyId);
-
-            String jsonResponseQuery = new Gson().toJson(responseMap);
-
-            Response response = responseCollection.findOne(jsonResponseQuery).as(Response.class);
+            Response response = responseCollection.findOne(Oid.withOid(toResponseBodyId)).as(Response.class);
 
             parsedTask.containerId = mongoDBTask.fromContainerId;
             parsedTask.containerService = mongoDBTask.fromContainerService;
             parsedTask.recordId = mongoDBTask.getId();
-            parsedTask.task = mongoDBTask.task == "NUMBER"? TASK_TYPE.NUMBER : TASK_TYPE.STRING;
+            parsedTask.task = mongoDBTask.task.equals("NUMBER")? TASK_TYPE.NUMBER : TASK_TYPE.STRING;
             parsedTask.subtask = mongoDBTask.subtask == "ADD"? SUB_TASK_TYPE.ADD :
-              mongoDBTask.subtask == "SUBTRACT"? SUB_TASK_TYPE.SUBTRACT :
-              mongoDBTask.subtask == "MULTIPLY"? SUB_TASK_TYPE.MULTIPLY :
-              mongoDBTask.subtask == "DIVIDE"? SUB_TASK_TYPE.DIVIDE : null;
+              mongoDBTask.subtask.equals("SUBTRACT")? SUB_TASK_TYPE.SUBTRACT :
+              mongoDBTask.subtask.equals("MULTIPLY")? SUB_TASK_TYPE.MULTIPLY :
+              mongoDBTask.subtask.equals("DIVIDE")? SUB_TASK_TYPE.DIVIDE : null;
 
             parsedTask.serviceContainerId = mongoDBTask.serviceContainerId;
             parsedTask.serviceContainerService = mongoDBTask.serviceContainerService;
@@ -278,16 +286,19 @@ public class MongoDBOps {
           String fromSentTime = getCurrentISOTimeString();
 
           MongoCollection taskCollection = getTaskCollection();
-          ObjectId taskId = new ObjectId(funcResponse.recordId);
 
-          Task task = taskCollection.findOne(taskId).as(Task.class);
-          task.toReceivedTime = receivedTime;
-          task.toResponseBodyId = responseBodyId;
-          task.fromSentTime = fromSentTime;
+          Task task = taskCollection.findOne(Oid.withOid(funcResponse.recordId)).as(Task.class);
 
-          taskCollection.save(task);
+           task.toReceivedTime = receivedTime;
+           task.toResponseBodyId = responseBodyId;
+           task.fromSentTime = fromSentTime;
+           
+          taskCollection
+                  .update(new ObjectId(task.getId()))
+                  .with(new Task(task));
 
       } catch(Exception e) {
+          e.printStackTrace();
           Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "completeRecordInDB", e.getMessage());
       }
     }
@@ -300,13 +311,8 @@ public class MongoDBOps {
             String fromContainerId = funcTask.containerId;
             String fromContainerService = funcTask.service;
             String fromReceivedTime = getCurrentISOTimeString();
-            String task = funcTask.task == TASK_TYPE.NUMBER? "NUMBER" :
-                    funcTask.task == TASK_TYPE.STRING? "STRING" : null;;
-            String subtask = funcTask.subtask == SUB_TASK_TYPE.ADD? "ADD" :
-                    funcTask.subtask == SUB_TASK_TYPE.SUBTRACT? "SUBTRACT" :
-                            funcTask.subtask == SUB_TASK_TYPE.MULTIPLY? "MULTIPLY" :
-                                    funcTask.subtask == SUB_TASK_TYPE.DIVIDE? "DIVIDE" : null;;
-
+            String task = funcTask.task.toString();
+            String subtask = funcTask.subtask.toString();
 
             ContainerInfoInterface selectedContainerInfo = Util.getSelectedContainerIdAndService(funcTask);
 
@@ -342,7 +348,6 @@ public class MongoDBOps {
 
             Task newTask = tasksCollection.findOne(jsonTaskQuery).as(Task.class);
 
-            // TODO - Continue from here
             parsedTask = getNewParsedTask(newTask, selectedContainerInfo);
 
         } catch(Exception e) {
@@ -373,8 +378,6 @@ public class MongoDBOps {
 
         Task existingTask = getExistingTask(task);
 
-        // TODO - Continue from here - request being recorded twice, plus procession till end
-
         if(existingTask != null) {
             InitialisedRecordInfoInterface parsedTask = getExistingParsedTask(existingTask);
 
@@ -392,26 +395,40 @@ public class MongoDBOps {
        try {
            MongoCollection responseCollection = getResponsesCollection();
            Map<String, String> responseQueryMap = new HashMap();
+           responseQueryMap.put("response", funcResponse.responseBody);
+
            String jsonResponseQuery = new Gson().toJson(responseQueryMap);
-           responseQueryMap.put("response", funcResponse.requestBody);
 
            Response preexistingResponse = responseCollection.findOne(jsonResponseQuery).as(Response.class);
 
-           if(preexistingResponse.response.length() == 0) {
+           if(preexistingResponse == null) {
               String toReceivedTime = getCurrentISOTimeString();
               String toResponseBodyId = saveNewResponseAndGetID(funcResponse.responseBody);
 
               completeRecordInDB(funcResponse, toReceivedTime, toResponseBodyId);
            }
 
-           ObjectId recordId = new ObjectId(funcResponse.recordId);
            MongoCollection taskCollection = getTaskCollection();
-           Task task = taskCollection.findOne(recordId).as(Task.class);
+
+           Task task = taskCollection.findOne(Oid.withOid(funcResponse.recordId)).as(Task.class);
+
+           MongoCursor<Task> cursor = taskCollection.find().as(Task.class);
+
+           if(task == null) {
+               for(Task t : cursor) {
+                  if(t.getId().equals(funcResponse.recordId)) {
+                      task = t;
+                      break;
+                  }
+               }
+           }
+           cursor.close();
+
            response = getParsedResponse(funcResponse, task);
 
-
        } catch(Exception e) {
-
+           e.printStackTrace();
+           Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "completeExistingTaskRecordInDB", e.getMessage());
        } finally {
            return response;
        }

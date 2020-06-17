@@ -21,6 +21,11 @@ public class Logic {
         try {
             ReceivedEventInterface event = new Gson().fromJson(sentEvent, ReceivedEventInterface.class);
 
+            //
+            String t = new Gson().toJson(event);
+            System.out.println("Received event: " + t);
+            //
+
             ContainerInfoInterface offlineContainerInfo = functionContainerInfo.fetchOfflineContainerInfo();
 
             boolean eventIsOurs = event.containerId.equals(offlineContainerInfo.id) && event.service.equals(offlineContainerInfo.service);
@@ -99,6 +104,7 @@ public class Logic {
             Jedis redisPublisher = RedisInit.getRedisPublisher();
 
             redisPublisher.publish(EventService, stringifiedEvents);
+
 
         } catch(Exception e) {
             Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "sendResultsToEventService", e.getMessage());

@@ -15,7 +15,7 @@ public class Logic {
     public static void eventDeterminer(String sentEvent, DockerAPI functionDockerAPI) {
 
         try {
-            System.out.println("\n sentEvent :\n " + sentEvent);
+//            System.out.println("\n sentEvent :\n " + sentEvent + "\n");
             EventInterface event = new Gson().fromJson(sentEvent, EventInterface.class);
 
             ContainerInfoInterface offlineContainerInfo = functionDockerAPI.fetchOfflineContainerInfo();
@@ -30,9 +30,11 @@ public class Logic {
 
             switch (taskType) {
                 case TASK:
+                    System.out.println("\nGot task event\n");
                     recordAndAllocateTask(event);
                     break;
                 case RESPONSE:
+                    System.out.println("\nGot response event\n");
                     modifyDatabaseAndSendBackResponse(event);
             }
 

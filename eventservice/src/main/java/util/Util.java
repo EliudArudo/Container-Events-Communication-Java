@@ -21,7 +21,6 @@ public class Util {
 
            List<ParsedContainerInterface> selectedContainers = new ArrayList<>();
 
-
            JSONParser parser = new JSONParser();
            JSONObject taskMaps = (JSONObject) parser.parse(new FileReader("/app/task-maps.json"));
 

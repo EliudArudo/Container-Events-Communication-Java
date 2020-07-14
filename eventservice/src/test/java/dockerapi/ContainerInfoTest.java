@@ -2,6 +2,7 @@ package dockerapi;
 
 import com.spotify.docker.client.messages.Container;
 import interfaces.ContainerInfoInterface;
+import interfaces.ParsedContainerInterface;
 import mock.MockDockerContainer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,11 +44,11 @@ public class ContainerInfoTest {
         containerArray.add(container);
 
         try {
-//            ArrayList<ContainerInfoInterface> parsedContainers = dockerAPI.getParsedContainers(containerArray);
-//            ContainerInfoInterface parsedContainer = parsedContainers.get(0);
-//
-//            assertEquals(dummyContainerID, parsedContainer.id);
-//            assertEquals(dummyContainerService, parsedContainer.service);
+            List<ParsedContainerInterface> parsedContainers = dockerAPI.getParsedContainers(containerArray);
+            ParsedContainerInterface parsedContainer = parsedContainers.get(0);
+
+            assertEquals(dummyContainerID, parsedContainer.containerID);
+            assertEquals(dummyContainerService, parsedContainer.containerService);
 
         } catch(Exception e) {
             System.out.println("TestGetParsedContainers: " + e.getMessage());

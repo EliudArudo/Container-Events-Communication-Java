@@ -19,6 +19,14 @@ public class Logic {
     public static void eventDeterminer(String sentEvent, ContainerInfo functionContainerInfo) {
 
         try {
+
+            if(sentEvent.charAt(0) == '"') {
+                sentEvent = sentEvent
+                        .substring(1, sentEvent.length() - 1)
+                        .replaceAll("\\\\\"", "\"")
+                        .replaceAll("\\\\\"", "\"");
+            }
+
             ReceivedEventInterface event = new Gson().fromJson(sentEvent, ReceivedEventInterface.class);
 
             //
@@ -30,7 +38,7 @@ public class Logic {
 
             boolean eventIsOurs = event.containerId.equals(offlineContainerInfo.id) && event.service.equals(offlineContainerInfo.service);
 
-            EventTaskType taskType = event.requestBody.length() > 0? EventTaskType.TASK :
+            EventTaskType taskType = event.requestBody != null && event.requestBody.length() > 0? EventTaskType.TASK :
                     EventTaskType.RESPONSE;
 
             if(!eventIsOurs)
@@ -47,6 +55,7 @@ public class Logic {
             }
 
         } catch(Exception e) {
+            e.printStackTrace();
             Logging.logStatusFileMessage(STATUS_TYPE.Failure, packageName, "eventDeterminer", e.getMessage());
         }
     }

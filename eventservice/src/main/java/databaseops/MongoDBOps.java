@@ -292,7 +292,7 @@ public class MongoDBOps {
            task.toReceivedTime = receivedTime;
            task.toResponseBodyId = responseBodyId;
            task.fromSentTime = fromSentTime;
-           
+
           taskCollection
                   .update(new ObjectId(task.getId()))
                   .with(new Task(task));

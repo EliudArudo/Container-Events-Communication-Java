@@ -15,6 +15,13 @@ public class Logic {
     public static void eventDeterminer(String sentEvent, ContainerInfo functionContainerInfo) {
 
         try {
+            if(sentEvent.charAt(0) == '"') {
+                sentEvent = sentEvent
+                        .substring(1, sentEvent.length() - 1)
+                        .replaceAll("\\\\\"", "\"")
+                        .replaceAll("\\\\\"", "\"");
+            }
+
             ReceivedEventInterface event = new Gson().fromJson(sentEvent, ReceivedEventInterface.class);
 
             ContainerInfoInterface offlineContainerInfo = functionContainerInfo.fetchOfflineContainerInfo();

@@ -15,7 +15,14 @@ public class Logic {
     public static void eventDeterminer(String sentEvent, DockerAPI functionDockerAPI) {
 
         try {
-//            System.out.println("\n sentEvent :\n " + sentEvent + "\n");
+
+            if(sentEvent.charAt(0) == '"') {
+                sentEvent = sentEvent
+                        .substring(1, sentEvent.length() - 1)
+                        .replaceAll("\\\\\"", "\"")
+                        .replaceAll("\\\\\"", "\"");
+            }
+
             EventInterface event = new Gson().fromJson(sentEvent, EventInterface.class);
 
             ContainerInfoInterface offlineContainerInfo = functionDockerAPI.fetchOfflineContainerInfo();

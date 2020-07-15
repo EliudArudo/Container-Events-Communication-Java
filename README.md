@@ -482,10 +482,10 @@ _**Build your own docker images**_
 The first step is to clone this repo into your local directory. The **utility/** folder contains two files namely:
 - __deploy-images-locally.sh__ builds docker images locally under 'dev' version. Here's a snippet:
 ```
-docker build -t eliudarudo/java-events-communication-consuming-frontend:dev -f ../consuming-frontend/Dockerfile ../consumingfrontend
+docker build -t eliudarudo/java-events-communication-consuming-frontend:dev -f ../consumingfrontend/Dockerfile ../consumingfrontend
 
 # In case you want to build to your docker repo, use
-docker build -t <YOUR-DOCKER-REPO-NAME>/java-events-communication-consuming-frontend:dev -f ../consuming-frontend/Dockerfile ../consumingfrontend
+docker build -t <YOUR-DOCKER-REPO-NAME>/java-events-communication-consuming-frontend:dev -f ../consumingfrontend/Dockerfile ../consumingfrontend
 ```
 - __deploy-images-to-docker.sh__  builds and uploads the images to your respective docker repos. Here's a snippet;
 ```
@@ -493,7 +493,7 @@ docker build -t <YOUR-DOCKER-REPO-NAME>/java-events-communication-consuming-fron
 export COLLECTIVE_VERSION=v1.0.0
 
 # Building the frontend microservice image
-docker build -t eliudarudo/java-events-communication-consuming-frontend:$COLLECTIVE_VERSION -f ../consuming-frontend/Dockerfile ../consumingfrontend
+docker build -t eliudarudo/java-events-communication-consuming-frontend:$COLLECTIVE_VERSION -f ../consumingfrontend/Dockerfile ../consumingfrontend
 
 # Pushing with version tag to my docker repo
 docker push eliudarudo/java-events-communication-consuming-frontend:$COLLECTIVE_VERSION

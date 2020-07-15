@@ -1,4 +1,4 @@
-name: Events Tests + Push
+name: Event Tests + Push
 
 on:
     push:

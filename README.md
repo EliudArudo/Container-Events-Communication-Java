@@ -639,18 +639,3 @@ Your help in these areas will be much appreciated
 
 You can reach me through [eliudarudo@gmail.com](mailto:eliudarudo@gmail.com) in case of any inquiries. Thank you 😊.
 
-
-<style>
-/* Restraining language logo size */
-.language-logo {
-    height: 50px;
-    width: auto;
-}
-
-/* Remove outline on focus on clicking image */
-a:active, a:focus {
-  outline: 0;
-  border: none;
-  -moz-outline-style: none;
-}
-</style>
